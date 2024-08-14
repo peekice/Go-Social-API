@@ -23,6 +23,8 @@ type IPostsRepository interface {
 	LikePost(postID string) error
 	CommentPost(postID string, comment entities.Comment) error
 	DeletePost(postID string) error
+	EditComment(postID string, commentID string, newContent string) error
+	DeleteComment(postID string, commentID string) error
 }
 
 func NewPostsRepository(db *MongoDB) IPostsRepository {
@@ -99,6 +101,26 @@ func (repo *postsRepository) CommentPost(postID string, comment entities.Comment
 func (repo *postsRepository) DeletePost(postID string) error {
 
 	_, err := repo.Collection.DeleteOne(repo.Context, bson.M{"post_id": postID})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *postsRepository) EditComment(postID string, commentID string, newContent string) error {
+
+	_, err := repo.Collection.UpdateOne(repo.Context, bson.M{"post_id": postID, "comment.comment_id": commentID}, bson.M{"$set": bson.M{"comment.$.content": newContent, "comment.$.edited": true}})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *postsRepository) DeleteComment(postID string, commentID string) error {
+
+	_, err := repo.Collection.UpdateOne(repo.Context, bson.M{"post_id": postID}, bson.M{"$pull": bson.M{"comment": bson.M{"comment_id": commentID}}})
+
 	if err != nil {
 		return err
 	}

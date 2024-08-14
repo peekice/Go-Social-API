@@ -22,6 +22,8 @@ type IPostsService interface {
 	LikePost(postID string) error
 	CommentPost(userID string, postID string, newComment string) error
 	DeletePost(userID string, postID string) error
+	EditComment(userID string, postID string, commentID string, newContent string) error
+	DeleteComment(userID string, postID string, commentID string) error
 }
 
 func NewPostsService(repo0 repositories.IPostsRepository, repo1 repositories.IUsersRepository) IPostsService {
@@ -136,6 +138,7 @@ func (sv *postsService) CommentPost(userID string, postID string, newComment str
 		Content:   newComment,
 		User:      user,
 		CommentAt: time.Now(),
+		Edited:    false,
 	}
 
 	err = sv.postsRepository.CommentPost(postID, CommentData)
@@ -164,4 +167,55 @@ func (sv *postsService) DeletePost(userID string, postID string) error {
 	}
 
 	return nil
+}
+
+func (sv *postsService) EditComment(userID string, postID string, commentID string, newContent string) error {
+
+	existPost, err := sv.postsRepository.GetPostByID(postID)
+	if err != nil {
+		return err
+	}
+
+	for _, comment := range existPost.Comment {
+		if comment.CommentID == commentID {
+			if comment.User.UserID != userID {
+				return errors.New("you don't have permission to edit this comment")
+			}
+			if newContent == "" {
+				return errors.New("content cannot be empty")
+			}
+			err = sv.postsRepository.EditComment(postID, commentID, newContent)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+	return errors.New("comment not found")
+}
+
+func (sv *postsService) DeleteComment(userID string, postID string, commentID string) error {
+
+	existPost, err := sv.postsRepository.GetPostByID(postID)
+
+	if err != nil {
+		return err
+	}
+
+	for _, comment := range existPost.Comment {
+		if comment.CommentID == commentID {
+			if comment.User.UserID != userID {
+				return errors.New("you don't have permission to delete this comment")
+			}
+
+			err = sv.postsRepository.DeleteComment(postID, commentID)
+
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+
+	return errors.New("comment not found")
 }

@@ -19,7 +19,8 @@ type UserPostModel struct {
 
 type Comment struct {
 	CommentID string          `json:"comment_id" bson:"comment_id,omitempty"`
-	Content   string          `json:"comment" bson:"comment,omitempty"`
+	Content   string          `json:"content" bson:"content,omitempty"`
 	User      UserDetailModel `json:"user" bson:"user,omitempty"`
 	CommentAt time.Time       `json:"created_at" bson:"created_at,omitempty"`
+	Edited    bool            `json:"edited" bson:"edited,omitempty"`
 }

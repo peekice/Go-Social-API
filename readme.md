@@ -7,4 +7,5 @@ Demo BackEnd service for social media application.
 - [x] Comment
 - [x] Delete Post
 - [ ] Edit user detail (change username, email, password)
-- [ ] Edit Comment
+- [x] Edit Comment
+- [x] Delete Comment

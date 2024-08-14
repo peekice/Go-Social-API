@@ -122,3 +122,49 @@ func (h *HTTPGateway) DeletePost(ctx *fiber.Ctx) error {
 	}
 	return ctx.Status(fiber.StatusOK).JSON(entities.ResponseModel{Message: "success"})
 }
+
+func (h *HTTPGateway) EditComment(ctx *fiber.Ctx) error {
+	decodedToken, err := middlewares.DecodeJWTToken(ctx)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(entities.ResponseModel{Message: "Unauthorization Token."})
+	}
+	userID := decodedToken.UserID
+
+	parmas := ctx.Queries()
+	postID := parmas["post_id"]
+	commentID := parmas["comment_id"]
+
+	type EditContent struct {
+		Content string `json:"content"`
+	}
+
+	var newContent = EditContent{}
+
+	if err := ctx.BodyParser(&newContent); err != nil {
+		return ctx.Status(422).JSON(entities.ResponseModel{Message: "Unprocessable Entity"})
+	}
+
+	err = h.PostService.EditComment(userID, postID, commentID, newContent.Content)
+	if err != nil {
+		return ctx.Status(fiber.StatusForbidden).JSON(entities.ResponseModel{Message: err.Error()})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(entities.ResponseModel{Message: "success"})
+}
+
+func (h *HTTPGateway) DeleteComment(ctx *fiber.Ctx) error {
+	decodedToken, err := middlewares.DecodeJWTToken(ctx)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(entities.ResponseModel{Message: "Unauthorization Token."})
+	}
+	userID := decodedToken.UserID
+
+	parmas := ctx.Queries()
+	postID := parmas["post_id"]
+	commentID := parmas["comment_id"]
+
+	err = h.PostService.DeleteComment(userID, postID, commentID)
+	if err != nil {
+		return ctx.Status(fiber.StatusForbidden).JSON(entities.ResponseModel{Message: err.Error()})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(entities.ResponseModel{Message: "success"})
+}
