@@ -9,3 +9,5 @@ Demo BackEnd service for social media application.
 - [ ] Edit user detail (change username, email, password)
 - [x] Edit Comment
 - [x] Delete Comment
+
+Template from https://github.com/InternBNDEV-golang/go-fiber-template
