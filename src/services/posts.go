@@ -65,7 +65,7 @@ func (sv *postsService) CreatePost(userID string, payloadData entities.UserPostM
 	postData := entities.PostDataModel{
 		PostID:  uuid.New().String(),
 		Content: payloadData.Content,
-		User:    user,
+		PostBy:  user,
 		Likes:   0,
 		Comment: []entities.Comment{},
 		PostdAt: time.Now(),
@@ -91,7 +91,7 @@ func (sv *postsService) EditPost(userID string, postID string, newContent string
 		return err
 	}
 
-	if existPost.User.UserID != userID {
+	if existPost.PostBy.UserID != userID {
 		return errors.New("you don't have permission to edit this post")
 	}
 
@@ -136,7 +136,7 @@ func (sv *postsService) CommentPost(userID string, postID string, newComment str
 	CommentData := entities.Comment{
 		CommentID: uuid.New().String(),
 		Content:   newComment,
-		User:      user,
+		PostBy:    user,
 		CommentAt: time.Now(),
 		Edited:    false,
 	}
@@ -156,7 +156,7 @@ func (sv *postsService) DeletePost(userID string, postID string) error {
 		return err
 	}
 
-	if existPost.User.UserID != userID {
+	if existPost.PostBy.UserID != userID {
 		return errors.New("you don't have permission to delete this post")
 	}
 
@@ -178,7 +178,7 @@ func (sv *postsService) EditComment(userID string, postID string, commentID stri
 
 	for _, comment := range existPost.Comment {
 		if comment.CommentID == commentID {
-			if comment.User.UserID != userID {
+			if comment.PostBy.UserID != userID {
 				return errors.New("you don't have permission to edit this comment")
 			}
 			if newContent == "" {
@@ -204,7 +204,7 @@ func (sv *postsService) DeleteComment(userID string, postID string, commentID st
 
 	for _, comment := range existPost.Comment {
 		if comment.CommentID == commentID {
-			if comment.User.UserID != userID {
+			if comment.PostBy.UserID != userID {
 				return errors.New("you don't have permission to delete this comment")
 			}
 
